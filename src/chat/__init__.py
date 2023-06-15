@@ -1,4 +1,4 @@
-from chat.api import chat_app
+from chat.api import socketio, socket_blueprint
 
 
-__all__ = ['chat_app']
+__all__ = ['socketio', 'socket_blueprint']

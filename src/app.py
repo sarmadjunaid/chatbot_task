@@ -1,13 +1,15 @@
 from flask import Flask, session, redirect, url_for, render_template
-
 from authlib.integrations.flask_client import OAuth
+from flask_socketio import SocketIO
+from utils import login_required
+from loguru import logger
 from urllib.parse import quote_plus, urlencode
 from config import DOMAIN, CLIENT_ID, CLIENT_SECRET
-from chat import chat_app
 from auth import AuthManager
 
 app = Flask(__name__)
-app.register_blueprint(chat_app)
+
+socketio = SocketIO(app, async_mode='gevent', engineio_logger=True)
 oauth = OAuth(app)
 
 auth = AuthManager()
@@ -24,6 +26,28 @@ authO = oauth.register('auth0',
                            'scope': 'openid profile email',
                        },
                        server_metadata_url=f'https://{DOMAIN}/.well-known/openid-configuration')
+
+
+@app.route('/')
+@login_required
+def index():
+    return render_template('chat.html')
+
+
+@socketio.on('connect')
+def handle_connect():
+    logger.success('Client connected')
+
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    logger.success('Client disconnected')
+
+
+@socketio.on('message')
+def handle_message(data):
+    logger.info(f'Received message: {data}')
+    socketio.emit('message', data)  # Echo the message back to the client
 
 
 @app.route('/callback', methods=['GET', 'POST'])
@@ -58,8 +82,5 @@ def logout():
     )
 
 
-
-
-
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    socketio.run(app)

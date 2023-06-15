@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,12 +14,6 @@
             padding: 20px;
             background-color: #f4f4f4;
             border: 1px solid #ccc;
-        }
-
-        .chat-heading {
-            width: 400px;
-            margin: 0 auto;
-            padding: 20px;
         }
 
         .message {
@@ -53,43 +48,33 @@
             cursor: pointer;
         }
     </style>
-</head>
-<body>
-    <div class="chat-heading">
-        <h1>ChatBot</h1>
-        <h3>Ask Away......?</h3>
-    </div>
-    <div class="chat-container">
-        <div id="message-container">
-            <!-- Messages will be dynamically added here -->
-        </div>
-        <div class="input-container">
-            <input type="text" id="message-input" placeholder="Type your message">
-            <input type="submit" value="Send" onclick="sendMessage()">
-        </div>
-    </div>
-
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
     <script>
+        const socket = io();
+
+        const messageContainer = document.getElementById('message-container');
+
+        socket.on('connect', () => {
+            console.log('WebSocket connected');
+        });
+
+        socket.on('disconnect', () => {
+            console.log('WebSocket disconnected');
+        });
+
+        socket.on('message', (data) => {
+            console.log('Received message:', data);
+            const messageElement = document.createElement('p');
+            messageElement.textContent = data;
+            messageContainer.appendChild(messageElement);
+        });
+
         function sendMessage() {
-            var messageInput = document.getElementById('message-input');
+            var messageInput = document.getElementById('messageInput');
             var message = messageInput.value.trim();
 
             if (message !== '') {
-                var messageContainer = document.createElement('div');
-                messageContainer.className = 'message';
-                messageContainer.innerHTML = '<span class="sender">You:</span> ' + message;
-
-                var messageContainer = document.createElement('div');
-                messageContainer.className = 'message';
-                messageContainer.innerHTML = '<span class="sender">You:</span> ' + message;
-
-                var timestamp = document.createElement('span');
-                timestamp.className = 'timestamp';
-                timestamp.innerHTML = getCurrentTimestamp();
-
-                messageContainer.appendChild(timestamp);
-                document.getElementById('message-container').appendChild(messageContainer);
-
+                socket.emit('message', message);
                 messageInput.value = '';
                 messageInput.focus();
             }
@@ -106,5 +91,11 @@
             return hours + ':' + minutes + ' ' + ampm;
         }
     </script>
+</head>
+<body>
+    <h1>Flask WebSocket App</h1>
+    <div id="message-container"></div>
+    <input type="text" id="messageInput" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
 </body>
 </html>
