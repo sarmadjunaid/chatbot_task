@@ -1,12 +1,13 @@
-from flask import Flask, session, redirect, url_for
+from flask import Flask, session, redirect, url_for, render_template
 
 from authlib.integrations.flask_client import OAuth
 from urllib.parse import quote_plus, urlencode
 from config import DOMAIN, CLIENT_ID, CLIENT_SECRET
-from utils import login_required
+from chat import chat_app
 from auth import AuthManager
 
 app = Flask(__name__)
+app.register_blueprint(chat_app)
 oauth = OAuth(app)
 
 auth = AuthManager()
@@ -57,12 +58,7 @@ def logout():
     )
 
 
-@app.route('/', methods=['GET'])
-@login_required
-def home():
-    return {
-        "k": "hello"
-    }, 200
+
 
 
 if __name__ == "__main__":

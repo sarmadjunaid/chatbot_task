@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .chat-container {
+            width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+            border: 1px solid #ccc;
+        }
+
+        .chat-heading {
+            width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+        }
+
+        .sender {
+            font-weight: bold;
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .input-container {
+            margin-top: 20px;
+        }
+
+        .input-container input[type="text"] {
+            width: 80%;
+            padding: 5px;
+            font-size: 14px;
+        }
+
+        .input-container input[type="submit"] {
+            padding: 5px 10px;
+            font-size: 14px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-heading">
+        <h1>ChatBot</h1>
+        <h3>Ask Away......?</h3>
+    </div>
+    <div class="chat-container">
+        <div id="message-container">
+            <!-- Messages will be dynamically added here -->
+        </div>
+        <div class="input-container">
+            <input type="text" id="message-input" placeholder="Type your message">
+            <input type="submit" value="Send" onclick="sendMessage()">
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            var messageInput = document.getElementById('message-input');
+            var message = messageInput.value.trim();
+
+            if (message !== '') {
+                var messageContainer = document.createElement('div');
+                messageContainer.className = 'message';
+                messageContainer.innerHTML = '<span class="sender">You:</span> ' + message;
+
+                var messageContainer = document.createElement('div');
+                messageContainer.className = 'message';
+                messageContainer.innerHTML = '<span class="sender">You:</span> ' + message;
+
+                var timestamp = document.createElement('span');
+                timestamp.className = 'timestamp';
+                timestamp.innerHTML = getCurrentTimestamp();
+
+                messageContainer.appendChild(timestamp);
+                document.getElementById('message-container').appendChild(messageContainer);
+
+                messageInput.value = '';
+                messageInput.focus();
+            }
+        }
+
+        function getCurrentTimestamp() {
+            var date = new Date();
+            var hours = date.getHours();
+            var minutes = date.getMinutes();
+            var ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // Handle midnight
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            return hours + ':' + minutes + ' ' + ampm;
+        }
+    </script>
+</body>
+</html>
