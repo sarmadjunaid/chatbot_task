@@ -4,6 +4,7 @@ from flask_socketio import SocketIO
 from utils import login_required
 from loguru import logger
 from urllib.parse import quote_plus, urlencode
+from chat import ChatManager
 from config import DOMAIN, CLIENT_ID, CLIENT_SECRET
 from auth import AuthManager
 
@@ -31,6 +32,7 @@ authO = oauth.register('auth0',
 @app.route('/')
 @login_required
 def index():
+    print(session)
     return render_template('chat.html')
 
 
@@ -45,9 +47,23 @@ def handle_disconnect():
 
 
 @socketio.on('message')
-def handle_message(data):
-    logger.info(f'Received message: {data}')
-    socketio.emit('message', data)  # Echo the message back to the client
+def handle_message(message):
+    try:
+        logger.info(f'Received message: {message}')
+        logger.info(session['userinfo'])
+        # save message to db
+        chat = ChatManager()
+        chat.save_message(data={
+            "message": message,
+            "user": {
+                "email": session.get('userinfo').get('email', ''),
+                "username": session.get('userinfo').get('username', '')
+            }
+        })
+
+        socketio.emit('message', message)  # Echo the message back to the client
+    except Exception as e:
+        logger.error(f"Error while handling message {e}")
 
 
 @app.route('/callback', methods=['GET', 'POST'])
